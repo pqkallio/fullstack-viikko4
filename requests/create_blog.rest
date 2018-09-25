@@ -2,7 +2,7 @@ POST http://localhost:3003/api/blogs
 Content-Type: application/json
 
 {
-    "title": "Testi 1",
-    "author": "Joku Jokunen",
-    "likes": 34
+    "title": "Ekieki",
+    "author": "Lek Mer",
+    "likes": 12
 }
