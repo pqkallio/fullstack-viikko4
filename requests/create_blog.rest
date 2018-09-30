@@ -2,7 +2,7 @@ POST http://localhost:3003/api/blogs
 Content-Type: application/json
 
 {
-    "title": "Ekieki",
-    "author": "Lek Mer",
-    "likes": 12
+    "title": "Iliooo!",
+    "author": "Ehti MOro",
+    "likes": 5
 }
