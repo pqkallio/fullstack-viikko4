@@ -1,0 +1,9 @@
+PUT http://localhost:3001/api/blogs/5ba9c3714ab6b827b15fafae
+Content-Type: application/json
+
+{
+    "author": "Jurgen Maller",
+    "title": "No Remorse!",
+    "likes": 666,
+    "url": "http://123nonono.com"
+}

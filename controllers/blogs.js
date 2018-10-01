@@ -35,4 +35,35 @@ blogsRouter.post('/', async (request, response) => {
     }
 })
 
+blogsRouter.put('/:id', async (request, response) => {
+    try {
+        const body = request.body
+
+        const blog = {
+            author: body.author,
+            title: body.title,
+            likes: body.likes,
+            url: body.url
+        }
+
+        const updatedNote = await Blog.findByIdAndUpdate(request.params.id, blog, { new: true })
+        response.json(updatedNote)
+    } catch (exception) {
+        console.log(exception)
+        response.status(400).json({ error: 'malformed id' })
+    }
+})
+
+blogsRouter.delete('/:id', async (request, response) => {
+    console.log('got this far')
+    try {
+        await Blog.findByIdAndRemove(request.params.id)
+
+        response.status(204).end()
+    } catch (exception) {
+        console.log(exception)
+        response.status(400).json({ error: 'malformatted id' })
+    }
+})
+
 module.exports = blogsRouter
