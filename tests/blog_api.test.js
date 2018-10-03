@@ -5,7 +5,7 @@ const Blog = require('../models/blog')
 const { initialBlogs, blogsInDb, nonExistingId } = require('./test_helper')
 
 
-describe('With initially saved blogs in the database', () => {
+describe('With initially saved blogs in the database', async () => {
     beforeAll(async () => {
         await Blog.remove({})
     
@@ -25,7 +25,7 @@ describe('With initially saved blogs in the database', () => {
         expect(response.body.length).toBe(blogsInDatabase.length)
     })
     
-    describe('Addition of a new blog', () => {
+    describe('Addition of a new blog', async () => {
         test('a new blog is correctly added', async () => {
             const blogsPreOp = await blogsInDb()
             
@@ -102,7 +102,7 @@ describe('With initially saved blogs in the database', () => {
         })
     })
 
-    describe('deletion of a blog', () => {
+    describe('deletion of a blog', async () => {
         let addedBlog
 
         beforeAll(async () => {
@@ -145,7 +145,7 @@ describe('With initially saved blogs in the database', () => {
         })
     })
 
-    describe('update blog', () => {
+    describe('update blog', async () => {
         let blogToUpdate
 
         beforeAll(async () => {
@@ -184,7 +184,7 @@ describe('With initially saved blogs in the database', () => {
         })
     })
     
-    afterAll(() => {
-        server.close()
+    afterAll(async () => {
+        await server.close()
     })
 })

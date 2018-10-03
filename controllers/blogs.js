@@ -4,7 +4,7 @@ const Blog = require('../models/blog')
 blogsRouter.get('/', async (request, response) => {
     try {
         const blogs = await Blog.find({})
-        response.json(blogs)
+        response.json(blogs.map(Blog.format))
     } catch (exception) {
         console.log(exception)
         response.status(500).json({ error: 'something went wrong' })
@@ -55,7 +55,6 @@ blogsRouter.put('/:id', async (request, response) => {
 })
 
 blogsRouter.delete('/:id', async (request, response) => {
-    console.log('got this far')
     try {
         await Blog.findByIdAndRemove(request.params.id)
 

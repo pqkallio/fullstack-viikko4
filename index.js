@@ -4,11 +4,14 @@ const app = express()
 const bodyParser = require('body-parser')
 const cors = require('cors')
 const mongoose = require('mongoose')
-const blogsRouter = require('./controllers/blogs')
 const config = require('./config')
+
+const blogsRouter = require('./controllers/blogs')
+const usersRouter = require('./controllers/users')
 
 app.use(bodyParser.json())
 app.use('/api/blogs', blogsRouter)
+app.use('/api/users', usersRouter)
 app.use(cors())
 
 mongoose

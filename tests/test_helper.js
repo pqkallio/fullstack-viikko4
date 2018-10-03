@@ -1,4 +1,5 @@
 const Blog = require('../models/blog')
+const User = require('../models/user')
 
 const initialBlogs = [
     {
@@ -26,6 +27,11 @@ const blogsInDb = async () => {
     return blogs
 }
 
+const usersInDb = async () => {
+    const users = await User.find({})
+    return users
+}
+
 const nonExistingId = async () => {
     const blog = new Blog()
     await blog.save()
@@ -37,5 +43,6 @@ const nonExistingId = async () => {
 module.exports = {
     initialBlogs,
     blogsInDb,
+    usersInDb,
     nonExistingId
 }
