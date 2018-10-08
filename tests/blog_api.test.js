@@ -55,7 +55,7 @@ describe('With initially saved blogs in the database', async () => {
                 .expect('Content-Type', /application\/json/)
         
             const blogsPostOp = await blogsInDb()
-            const savedBlog = (await Blog.find({ title: newTitle }))[0]
+            const savedBlog = await Blog.findOne({ title: newTitle })
             const titles = blogsPostOp.map(blog => blog.title)
         
             expect(blogsPostOp.length).toBe(blogsPreOp.length + 1)
