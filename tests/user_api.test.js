@@ -28,7 +28,7 @@ describe('With at least one user in the database', async () => {
         
         expect(response.body.length).toBe(usersInDatabase.length)
         expect(response.body[0].passwordHash).not.toBeDefined()
-        expect(response.body[0].adult).not.toBeDefined()
+        expect(response.body[0].blogs).toBeDefined()
     })
 
     test('saving a user with a unique username succeeds', async () => {

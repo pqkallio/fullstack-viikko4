@@ -22,6 +22,14 @@ const initialBlogs = [
     }
 ]
 
+const dummyUser = new User({
+    name: 'Test User',
+    username: 'testuser',
+    passwordHash: 'xxxxxxx',
+    adult: true,
+    blogs: []
+})
+
 const blogsInDb = async () => {
     const blogs = await Blog.find({})
     return blogs
@@ -44,5 +52,6 @@ module.exports = {
     initialBlogs,
     blogsInDb,
     usersInDb,
-    nonExistingId
+    nonExistingId,
+    dummyUser
 }

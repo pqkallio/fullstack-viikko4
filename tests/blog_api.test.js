@@ -2,13 +2,13 @@ const supertest = require('supertest')
 const { app, server } = require('../index')
 const api = supertest(app)
 const Blog = require('../models/blog')
-const { initialBlogs, blogsInDb, nonExistingId } = require('./test_helper')
-
+const User = require('../models/user')
+const { initialBlogs, blogsInDb, nonExistingId, usersInDb, dummyUser } = require('./test_helper')
 
 describe('With initially saved blogs in the database', async () => {
     beforeAll(async () => {
         await Blog.remove({})
-    
+
         const blogObjects = initialBlogs.map(blog => new Blog(blog))
         const promiseArray = blogObjects.map(blog => blog.save())
         await Promise.all(promiseArray)
@@ -26,6 +26,17 @@ describe('With initially saved blogs in the database', async () => {
     })
     
     describe('Addition of a new blog', async () => {
+        let dummy
+        
+        beforeAll(async () => {
+            await User.remove({})
+
+            dummy = dummyUser
+            await dummy.save()
+            const users = await usersInDb()
+            const savedUser = users[0]
+        })
+
         test('a new blog is correctly added', async () => {
             const blogsPreOp = await blogsInDb()
             
@@ -44,11 +55,12 @@ describe('With initially saved blogs in the database', async () => {
                 .expect('Content-Type', /application\/json/)
         
             const blogsPostOp = await blogsInDb()
-        
+            const savedBlog = (await Blog.find({ title: newTitle }))[0]
             const titles = blogsPostOp.map(blog => blog.title)
         
             expect(blogsPostOp.length).toBe(blogsPreOp.length + 1)
             expect(titles).toContain(newTitle)
+            expect(savedBlog.user).toEqual(dummy._id)
         })
         
         test('a new blog without likes will have zero likes by default', async () => {

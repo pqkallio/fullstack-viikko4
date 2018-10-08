@@ -1,8 +1,9 @@
-POST http://localhost:3003/api/blogs
+POST http://localhost:3001/api/blogs
 Content-Type: application/json
 
 {
-    "title": "Iliooo!",
-    "author": "Ehti MOro",
-    "likes": 5
+    "title": "Beli Monte",
+    "author": "Ristol Fargs",
+    "likes": 10,
+    "url": "http://www.gobananas.io"
 }

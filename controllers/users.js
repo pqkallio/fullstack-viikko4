@@ -4,7 +4,9 @@ const User = require('../models/user')
 
 usersRouter.get('/', async (request, response) => {
     try {
-        const users = await User.find({})
+        const users = await User
+            .find({})
+            .populate('blogs', { title: 1, author: 1, likes: 1, url: 1 })
         response.json(users.map(User.format))
     } catch (exception) {
         console.log(exception)
@@ -16,9 +18,7 @@ usersRouter.post('/', async (request, response) => {
     try {
         const body = request.body
 
-        const currentUsers = await User.find({})
-        const overlappingUsernames = currentUsers.filter(u => u.username === body.username)
-
+        const overlappingUsernames = await User.find({ username: body.username })
         if (overlappingUsernames.length > 0) {
             return response.status(400).json({ error: 'username already in use' })
         }
