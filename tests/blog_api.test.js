@@ -3,7 +3,7 @@ const { app, server } = require('../index')
 const api = supertest(app)
 const Blog = require('../models/blog')
 const User = require('../models/user')
-const { initialBlogs, blogsInDb, nonExistingId, usersInDb, dummyUser } = require('./test_helper')
+const { initialBlogs, blogsInDb, nonExistingId, usersInDb, dummyUser, getTokenForUser } = require('./test_helper')
 
 describe('With initially saved blogs in the database', async () => {
     beforeAll(async () => {
@@ -27,17 +27,96 @@ describe('With initially saved blogs in the database', async () => {
     
     describe('Addition of a new blog', async () => {
         let dummy
+        let token
         
         beforeAll(async () => {
             await User.remove({})
 
             dummy = dummyUser
             await dummy.save()
-            const users = await usersInDb()
-            const savedUser = users[0]
+
+            token = await getTokenForUser(dummy)
         })
 
-        test('a new blog is correctly added', async () => {
+        test('without a token a new blog is not added', async () => {
+            const blogsPreOp = await blogsInDb()
+            
+            const newTitle = "Ghetto Testing"
+            const newBlog = {
+                author: "Ernie Ball",
+                title: newTitle,
+                url: 'http://someurl.org',
+                likes: 2000
+            }
+        
+            const response = await api
+                .post('/api/blogs')
+                .send(newBlog)
+                .expect(401)
+                .expect('Content-Type', /application\/json/)
+        
+            const blogsPostOp = await blogsInDb()
+            const savedBlog = await Blog.findOne({ title: newTitle })
+            
+            expect(blogsPostOp.length).toBe(blogsPreOp.length)
+            expect(savedBlog).toBeNull()
+            expect(response.body.error).toBe('Token missing')
+        })
+
+        test('with a token with an invalid schema a new blog is not added', async () => {
+            const blogsPreOp = await blogsInDb()
+            
+            const newTitle = "Ghetto Testing"
+            const newBlog = {
+                author: "Ernie Ball",
+                title: newTitle,
+                url: 'http://someurl.org',
+                likes: 2000
+            }
+        
+            const response = await api
+                .post('/api/blogs')
+                .set('Authorization', `Beaver ${token}`)
+                .send(newBlog)
+                .expect(401)
+                .expect('Content-Type', /application\/json/)
+        
+            const blogsPostOp = await blogsInDb()
+            const savedBlog = await Blog.findOne({ title: newTitle })
+            
+            expect(blogsPostOp.length).toBe(blogsPreOp.length)
+            expect(savedBlog).toBeNull()
+            expect(response.body.error).toBe('Token missing')
+        })
+
+        test('with an invalid token a new blog is not added', async () => {
+            const blogsPreOp = await blogsInDb()
+            
+            const newTitle = "Ghetto Testing"
+            const newBlog = {
+                author: "Ernie Ball",
+                title: newTitle,
+                url: 'http://someurl.org',
+                likes: 2000
+            }
+        
+            const invalidToken = token.substring(0, token.length - 1) + (token.charAt(token.length - 1) === '0' ? '1' : '0')
+            const response = await api
+                .post('/api/blogs')
+                .set('Authorization', `Bearer ${invalidToken}`)
+                .send(newBlog)
+                .expect(401)
+                .expect('Content-Type', /application\/json/)
+        
+            const blogsPostOp = await blogsInDb()
+            const savedBlog = await Blog.findOne({ title: newTitle })
+            
+            expect(blogsPostOp.length).toBe(blogsPreOp.length)
+            expect(savedBlog).toBeNull()
+            expect(response.body.error).toBe('invalid signature')
+        })
+
+        test('with a token a new blog is correctly added', async () => {
             const blogsPreOp = await blogsInDb()
             
             const newTitle = "Ghetto Testing"
@@ -50,6 +129,7 @@ describe('With initially saved blogs in the database', async () => {
         
             await api
                 .post('/api/blogs')
+                .set('Authorization', `Bearer ${token}`)
                 .send(newBlog)
                 .expect(201)
                 .expect('Content-Type', /application\/json/)
@@ -73,6 +153,7 @@ describe('With initially saved blogs in the database', async () => {
         
             const response = await api
                 .post('/api/blogs')
+                .set('Authorization', `Bearer ${token}`)
                 .send(newBlog)
                 .expect(201)
                 .expect('Content-Type', /application\/json/)
@@ -90,6 +171,7 @@ describe('With initially saved blogs in the database', async () => {
         
             const response = await api
                 .post('/api/blogs')
+                .set('Authorization', `Bearer ${token}`)
                 .send(newBlog)
                 .expect(400)
                 .expect('Content-Type', /application\/json/)
@@ -106,6 +188,7 @@ describe('With initially saved blogs in the database', async () => {
         
             const response = await api
                 .post('/api/blogs')
+                .set('Authorization', `Bearer ${token}`)
                 .send(newBlog)
                 .expect(400)
                 .expect('Content-Type', /application\/json/)

@@ -1,8 +1,9 @@
 POST http://localhost:3001/api/blogs
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3RfdXNlciIsImlkIjoiNWJiMzJkOTIwZTVjNjgzYTAxOTNmZTI1IiwiaWF0IjoxNTM5MDA5MTU2fQ.n5Bs0OuxR9vq2N79r4zksHdIF130Ew1O87lEnZ8WtXY
 
 {
-    "title": "Beli Monte",
+    "title": "Microcosmos",
     "author": "Ristol Fargs",
     "likes": 10,
     "url": "http://www.gobananas.io"
