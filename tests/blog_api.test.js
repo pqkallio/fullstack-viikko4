@@ -199,23 +199,34 @@ describe('With initially saved blogs in the database', async () => {
 
     describe('deletion of a blog', async () => {
         let addedBlog
+        let dummy
+        let token
+        let invalidToken
 
-        beforeAll(async () => {
+        beforeEach(async () => {
+            await User.remove({})
+            dummy = dummyUser
+            await dummy.save()
+            token = await getTokenForUser(dummy)
+            invalidToken = token.substring(0, token.length - 1) + (token.charAt(token.length - 1) === '0' ? '1' : '0')
+
             addedBlog = new Blog({
                 author: 'The Author',
                 title: 'A Title',
                 url: 'http://www.agenericurl.com',
-                likes: 0
+                likes: 0,
+                user: dummy._id
             })
 
             await addedBlog.save()
         })
 
-        test('DELETE /api/blogs/:id succeeds with proper status code', async () => {
+        test('with a proper token DELETE /api/blogs/:id succeeds with proper status code', async () => {
             const blogsPreOp = await blogsInDb()
 
             await api
                 .delete(`/api/blogs/${addedBlog._id}`)
+                .set('Authorization', `Bearer ${token}`)
                 .expect(204)
             
             const blogsPostOp = await blogsInDb()
@@ -226,13 +237,45 @@ describe('With initially saved blogs in the database', async () => {
             expect(blogsPostOp.length).toBe(blogsPreOp.length - 1)
         })
 
+        test('with an invalid token DELETE /api/blogs/:id fails with proper status code', async () => {
+            const blogsPreOp = await blogsInDb()
+
+            await api
+                .delete(`/api/blogs/${addedBlog._id}`)
+                .set('Authorization', `Bearer ${invalidToken}`)
+                .expect(401)
+            
+            const blogsPostOp = await blogsInDb()
+            
+            const titles = blogsPostOp.map(blog => blog.title)
+
+            expect(titles).toContain(addedBlog.title)
+            expect(blogsPostOp.length).toBe(blogsPreOp.length)
+        })
+
+        test('without a token DELETE /api/blogs/:id fails with proper status code', async () => {
+            const blogsPreOp = await blogsInDb()
+
+            await api
+                .delete(`/api/blogs/${addedBlog._id}`)
+                .expect(401)
+            
+            const blogsPostOp = await blogsInDb()
+            
+            const titles = blogsPostOp.map(blog => blog.title)
+
+            expect(titles).toContain(addedBlog.title)
+            expect(blogsPostOp.length).toBe(blogsPreOp.length)
+        })
+
         test('DELETE of a non-existent blog returns proper status code', async () => {
             const blogsPreOp = await blogsInDb()
             const nonExistentId = await nonExistingId()
 
             await api
                 .delete(`/api/blogs/${nonExistentId}`)
-                .expect(204)
+                .set('Authorization', `Bearer ${token}`)
+                .expect(401)
             
             const blogsPostOp = await blogsInDb()
 
